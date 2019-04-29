@@ -62,13 +62,32 @@ export class History {
   }
 
   transitionTo (location: RawLocation, onComplete?: Function, onAbort?: Function) {
+    // 获取 匹配的 路由信息  
+    /**
+     * const route: Route = {
+     * name: location.name || (record && record.name),
+     * meta: (record && record.meta) || {},
+     * path: location.path || '/',
+     * hash: location.hash || '',
+     * query,
+     * params: location.params || {},
+     * fullPath: getFullPath(location, stringifyQuery),
+     * matched: record ? formatMatch(record) : []
+     * }
+     */
     const route = this.router.match(location, this.current)
+
+    // 切换路由
     this.confirmTransition(route, () => {
+      // 更新 _route
       this.updateRoute(route)
+      // 存在的话 绑定 change
       onComplete && onComplete(route)
+      
       this.ensureURL()
 
       // fire ready cbs once
+
       if (!this.ready) {
         this.ready = true
         this.readyCbs.forEach(cb => { cb(route) })
@@ -86,6 +105,8 @@ export class History {
 
   confirmTransition (route: Route, onComplete: Function, onAbort?: Function) {
     const current = this.current
+
+    
     const abort = err => {
       if (isError(err)) {
         if (this.errorCbs.length) {
@@ -97,6 +118,7 @@ export class History {
       }
       onAbort && onAbort(err)
     }
+    //重复路由的判断  直接return
     if (
       isSameRoute(route, current) &&
       // in the case the route map has been dynamically appended to
@@ -106,6 +128,7 @@ export class History {
       return abort()
     }
 
+    // 通过对比路由解析出可复用的组件，需要渲染的组件，失活的组件
     const {
       updated,
       deactivated,
@@ -115,11 +138,11 @@ export class History {
     const queue: Array<?NavigationGuard> = [].concat(
       // in-component leave guards
       extractLeaveGuards(deactivated),
-      // global before hooks
+      // global before hooks    全局 beforeEach 钩子
       this.router.beforeHooks,
       // in-component update hooks
       extractUpdateHooks(updated),
-      // in-config enter guards
+      // in-config enter guards 需要渲染组件 enter 守卫钩子
       activated.map(m => m.beforeEnter),
       // async components
       resolveAsyncComponents(activated)
@@ -127,6 +150,7 @@ export class History {
 
     this.pending = route
     const iterator = (hook: NavigationGuard, next) => {
+      // 路由不相等就不跳转路由
       if (this.pending !== route) {
         return abort()
       }

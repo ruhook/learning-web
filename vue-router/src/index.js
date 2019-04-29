@@ -1,6 +1,6 @@
 /* @flow */
 
-import { install } from './install'
+import {   } from './install'
 import { START } from './util/route'
 import { assert } from './util/warn'
 import { inBrowser } from './util/dom'
@@ -39,8 +39,10 @@ export default class VueRouter {
     this.beforeHooks = []
     this.resolveHooks = []
     this.afterHooks = []
+    // 创建 路由匹配对象
     this.matcher = createMatcher(options.routes || [], this)
-
+    
+    // 根据传入的mode   默认 hash
     let mode = options.mode || 'hash'
     this.fallback = mode === 'history' && !supportsPushState && options.fallback !== false
     if (this.fallback) {
@@ -50,7 +52,8 @@ export default class VueRouter {
       mode = 'abstract'
     }
     this.mode = mode
-
+    
+    // 初始化  history
     switch (mode) {
       case 'history':
         this.history = new HTML5History(this, options.base)
@@ -58,6 +61,7 @@ export default class VueRouter {
       case 'hash':
         this.history = new HashHistory(this, options.base, this.fallback)
         break
+      // node 环境
       case 'abstract':
         this.history = new AbstractHistory(this, options.base)
         break
@@ -86,7 +90,7 @@ export default class VueRouter {
       `not installed. Make sure to call \`Vue.use(VueRouter)\` ` +
       `before creating root instance.`
     )
-
+    // 缓存组件实例
     this.apps.push(app)
 
     // set up app destroyed handler
@@ -102,17 +106,19 @@ export default class VueRouter {
 
     // main app previously initialized
     // return as we don't need to set up new history listener
+    // 
     if (this.app) {
       return
     }
-
+    // 缓存根组件
     this.app = app
-
+    // 路由实例
     const history = this.history
-
+    // 判断模式
     if (history instanceof HTML5History) {
       history.transitionTo(history.getCurrentLocation())
     } else if (history instanceof HashHistory) {
+      // hash 需要设置 change 事件
       const setupHashListener = () => {
         history.setupListeners()
       }
@@ -123,6 +129,7 @@ export default class VueRouter {
       )
     }
 
+    // 回调  对_route重新赋值， 触发render
     history.listen(route => {
       this.apps.forEach((app) => {
         app._route = route

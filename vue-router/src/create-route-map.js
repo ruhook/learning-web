@@ -25,7 +25,7 @@ export function createRouteMap (
     addRouteRecord(pathList, pathMap, nameMap, route)
   })
 
-  // ensure wildcard routes are always at the end
+  // ensure wildcard routes are always at the end    确保通配符在最后
   for (let i = 0, l = pathList.length; i < l; i++) {
     if (pathList[i] === '*') {
       pathList.push(pathList.splice(i, 1)[0])
@@ -49,6 +49,7 @@ function addRouteRecord (
   parent?: RouteRecord,
   matchAs?: string
 ) {
+  //  获取 path  name  属性
   const { path, name } = route
   if (process.env.NODE_ENV !== 'production') {
     assert(path != null, `"path" is required in a route configuration.`)
@@ -60,6 +61,8 @@ function addRouteRecord (
   }
 
   const pathToRegexpOptions: PathToRegexpOptions = route.pathToRegexpOptions || {}
+
+  // 格式化 path  替换 /
   const normalizedPath = normalizePath(
     path,
     parent,
@@ -70,6 +73,7 @@ function addRouteRecord (
     pathToRegexpOptions.sensitive = route.caseSensitive
   }
 
+  // 生成对象
   const record: RouteRecord = {
     path: normalizedPath,
     regex: compileRouteRegex(normalizedPath, pathToRegexpOptions),
@@ -104,6 +108,7 @@ function addRouteRecord (
         )
       }
     }
+    // 存在 children  递归生成对象
     route.children.forEach(child => {
       const childMatchAs = matchAs
         ? cleanPath(`${matchAs}/${child.path}`)
@@ -111,7 +116,7 @@ function addRouteRecord (
       addRouteRecord(pathList, pathMap, nameMap, child, record, childMatchAs)
     })
   }
-
+  // 别名
   if (route.alias !== undefined) {
     const aliases = Array.isArray(route.alias)
       ? route.alias
@@ -132,12 +137,12 @@ function addRouteRecord (
       )
     })
   }
-
+  // 更新映射记录
   if (!pathMap[record.path]) {
     pathList.push(record.path)
     pathMap[record.path] = record
   }
-
+  // 命名路由 
   if (name) {
     if (!nameMap[name]) {
       nameMap[name] = record

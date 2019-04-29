@@ -19,6 +19,7 @@ export function createMatcher (
 ): Matcher {
   const { pathList, pathMap, nameMap } = createRouteMap(routes)
 
+  // 动态添加路由
   function addRoutes (routes) {
     createRouteMap(routes, pathList, pathMap, nameMap)
   }
@@ -28,9 +29,15 @@ export function createMatcher (
     currentRoute?: Route,
     redirectedFrom?: Location
   ): Route {
+    // 序列化 url
+    // 比如对于该 url 来说 /abc?foo=bar&baz=qux#hello
+    // 会序列化路径为 /abc
+    // 哈希为 #hello
+    // 参数为 foo: 'bar', baz: 'qux'
     const location = normalizeLocation(raw, currentRoute, false, router)
     const { name } = location
 
+    // 检测是否为命名路由
     if (name) {
       const record = nameMap[name]
       if (process.env.NODE_ENV !== 'production') {
@@ -58,6 +65,7 @@ export function createMatcher (
         return _createRoute(record, location, redirectedFrom)
       }
     } else if (location.path) {
+      //非命名路由处理
       location.params = {}
       for (let i = 0; i < pathList.length; i++) {
         const path = pathList[i]
