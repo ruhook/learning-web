@@ -18,7 +18,7 @@ export function install (Vue) {
       i(vm, callVal)
     }
   }
-  // hook beforeCreate 混入  
+  // hook beforeCreate 混入   
   Vue.mixin({
     beforeCreate () {
       // 如果传入了 router ， 
