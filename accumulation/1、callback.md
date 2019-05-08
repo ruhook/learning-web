@@ -12,6 +12,7 @@
 1、EventEmitter可以解决一波 。
 2、哨兵函数
 ```
+---
 
 ### generator  fn*()
 
@@ -21,11 +22,12 @@ let fn = function *(arg1)
 fn.next(arg2)
 fn.next(arg3)
 ```
-
+---
 ### promise 
 最直接的理解
 
-(手动实现一波)[https://github.com/ruhook/my-promise]
+[手动实现一波](https://github.com/ruhook/my-promise)
+---
 ### async await 
 
 async函数返回一个 Promise 对象，可以使用then方法添加回调函数。
