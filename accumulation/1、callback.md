@@ -27,6 +27,7 @@ fn.next(arg3)
 最直接的理解
 
 [手动实现一波](https://github.com/ruhook/my-promise)
+
 ---
 ### async await 
 
