@@ -1,7 +1,5 @@
 #  回调函数时间轴学习
 
----
-
 ### 回调函数的缺点 
 > 1、不可以return
 
@@ -24,6 +22,7 @@ fn.next(arg3)
 ```
 ---
 ### promise 
+
 最直接的理解
 
 [手动实现一波](https://github.com/ruhook/my-promise)
