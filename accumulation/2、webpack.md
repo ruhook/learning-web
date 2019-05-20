@@ -271,4 +271,3 @@ plugins: [
 
 1、多个入口
 2、防止重复，  splitChunks 切割代码
-3、
