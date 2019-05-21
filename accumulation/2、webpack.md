@@ -1,4 +1,4 @@
-# webpack 配置项之类的基础搭建 和 优化打包
+# webpack 配置项之类的基础搭建 和 优化打包  （webpack-chain 链式 webpack 配置项）
 
 ## 一些简单原理
 
