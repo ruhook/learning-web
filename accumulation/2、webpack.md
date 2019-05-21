@@ -1,5 +1,85 @@
 # webpack 配置项之类的基础搭建 和 优化打包
 
+## 一些简单原理
+
+### compiler
+
+Compiler 对象包含了 Webpack 环境所有的的配置信息，包含 options，loaders，plugins 这些信息，这个对象在 Webpack 启动时候被实例化，它是全局唯一的，可以简单地把它理解为 Webpack 实例，可以通过 compiler 对象去操作webpack。   
+
+compiler携带很多hooks，实现插件都是在于compiler的这些hooks
+
+Webpack 通过实例化一个 Compiler 对象，然后调用它的 run 方法来开始一次完整的编译过程。
+
+hooks
+常用的就  compile  make compilation emit
+
+```
+'before run'
+  'run'
+    compile:func//调用compile函数
+        'before compile'
+           'compile'//(1)compiler对象的第一阶段
+               newCompilation:object//创建compilation对象
+               'make' //(2)compiler对象的第二阶段 
+                    compilation.finish:func
+                       "finish-modules"
+                    compilation.seal
+                         "seal"
+                         "optimize"
+                         "optimize-modules-basic"
+                         "optimize-modules-advanced"
+                         "optimize-modules"
+                         "after-optimize-modules"//首先是优化模块
+                         "optimize-chunks-basic"
+                         "optimize-chunks"//然后是优化chunk
+                         "optimize-chunks-advanced"
+                         "after-optimize-chunks"
+                         "optimize-tree"
+                            "after-optimize-tree"
+                            "should-record"
+                            "revive-modules"
+                            "optimize-module-order"
+                            "advanced-optimize-module-order"
+                            "before-module-ids"
+                            "module-ids"//首先优化module-order，然后优化module-id
+                            "optimize-module-ids"
+                            "after-optimize-module-ids"
+                            "revive-chunks"
+                            "optimize-chunk-order"
+                            "before-chunk-ids"//首先优化chunk-order，然后chunk-id
+                            "optimize-chunk-ids"
+                            "after-optimize-chunk-ids"
+                            "record-modules"//record module然后record chunk
+                            "record-chunks"
+                            "before-hash"
+                               compilation.createHash//func
+                                 "chunk-hash"//webpack-md5-hash
+                            "after-hash"
+                            "record-hash"//before-hash/after-hash/record-hash
+                            "before-module-assets"
+                            "should-generate-chunk-assets"
+                            "before-chunk-assets"
+                            "additional-chunk-assets"
+                            "record"
+                            "additional-assets"
+                                "optimize-chunk-assets"
+                                   "after-optimize-chunk-assets"
+                                   "optimize-assets"
+                                      "after-optimize-assets"
+                                      "need-additional-seal"
+                                         unseal:func
+                                           "unseal"
+                                      "after-seal"
+                    "after-compile"//(4)完成模块构建和编译过程(seal函数回调)    
+    "emit"//(5)compile函数的回调,compiler开始输出assets，是改变assets最后机会
+    "after-emit"//(6)文件产生完成
+```
+
+### Compilation
+
+Compilation 对象包含了当前的模块资源、编译生成资源、变化的文件等。当 Webpack 以开发模式运行时，每当检测到一个文件变化，一次新的 Compilation 将被创建。Compilation 对象也提供了很多事件回调供插件做扩展。通过 Compilation 也能读取到 Compiler 对象。
+
+
 ## loader
 
 > 图片类
@@ -40,7 +120,7 @@ watchOptions:{
 
 ## 优化打包构建项
 
-#### 1、缩小文件搜索范围 
+### 1、缩小文件搜索范围 
 
 1.1 优化 loader 配置
 
@@ -69,7 +149,7 @@ resolve:{
 }
 ```
 
-#### 2、DLL（动态链接库）
+### 2、DLL（动态链接库）
 
 DllPlugin 和 DllReferencePlugin 提供分离包的方式可以大大提高构建时间性能。主要思想在于，将一些不做修改的依赖文件，提前打包，这样我们开发代码发布的时候就不需要再对这部分代码进行打包。从而节省了打包时间。
 
@@ -100,7 +180,7 @@ plugins:{
 }
 ```
 
-#### 3、HappyPack
+### 3、HappyPack
 
 分解给多个子进程(cpu.length - 1)去并发的执行，子进程处理完后再把结果发送给主进程。
 
@@ -148,7 +228,7 @@ plugins: [
 }
 ```
 
-#### 4、ParallelUglifyPlugin
+### 4、ParallelUglifyPlugin
 
 替换自带的 UglifyJsPlugin， 把 js 压缩的单线程 转换成 多线程去压缩
 
@@ -172,7 +252,7 @@ plugins: [
 ]
 ```
 
-#### 5、区分环境
+### 5、区分环境
 
 process.env.NODE_ENV
 
@@ -223,7 +303,7 @@ plugins:[
 }
 ```
 
-#### 6、服务器自动刷新
+### 6、服务器自动刷新
 
 6.1 watch 文件修改就打包
 
@@ -240,12 +320,12 @@ devServer:{
 }
 ```
 
-#### 7、tree shaking
+### 7、tree shaking
 有点类似按需加载，没用到的不参与打包，减小项目体积
 
-#### 8、提取公共代码
+### 8、提取公共代码
 
-##### chunks：
+#### chunks：
 chunks属性用来选择分割哪些代码块，可选值有：'all'（所有代码块），'async'（按需加载的代码块），'initial'（初始化代码块）。
 
 ```
@@ -256,7 +336,7 @@ optimozation:{
 }
 ```
 
-#### 9、开启scope hoisting
+### 9、开启scope hoisting
 
 Scope Hoisting 它可以让webpack打包出来的代码文件更小，运行更快，它可以被称作为 "作用域提升"。
 
@@ -267,7 +347,9 @@ plugins: [
 ]
 ```
 
-#### 10、代码分类
+### 10、代码分类
 
 1、多个入口
 2、防止重复，  splitChunks 切割代码
+
+
