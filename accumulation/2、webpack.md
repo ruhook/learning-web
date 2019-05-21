@@ -2,7 +2,11 @@
 
 ## 一些简单原理
 
-### compiler
+### loader
+
+它的基本工作流是将一个文件以字符串的形式读入，对其进行语法分析及转换（或者直接在loader中引入现成的编译工具，例如sass-loader中就引入了node-sass将SCSS代码转换为CSS代码，再交由css-loader处理），然后交由下一环节进行处理，所有载入的模块最终都会经过moduleFactory处理，转成javascript可以识别和运行的代码，从而完成模块的集成。
+
+### compiler（编译器）
 
 Compiler 对象包含了 Webpack 环境所有的的配置信息，包含 options，loaders，plugins 这些信息，这个对象在 Webpack 启动时候被实例化，它是全局唯一的，可以简单地把它理解为 Webpack 实例，可以通过 compiler 对象去操作webpack。   
 
